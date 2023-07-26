@@ -1,0 +1,1128 @@
+#include <limits>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <iomanip>
+#include <map>
+#include <algorithm>
+#include <ctime>
+#include <string>
+#include <chrono>
+#include <thread>
+#include <unordered_map>
+#include <random>
+
+using namespace std;
+
+const string shopAddress = "Arries Cosmetics Ltd \n P.O. Box 23 \n Weitethie";
+string loggedInUser;
+string role;
+
+// Base class - User
+class User {
+protected:
+    string username;
+    string password;
+
+public:
+    User(const string& username, const string& password) : username(username), password(password) {}
+
+    string getUsername() const {
+        return username;
+    }
+
+    string getPassword() const {
+        return password;
+    }
+
+    void setUsername(const string& newUsername) {
+        username = newUsername;
+    }
+
+    void setPassword(const string& newPassword) {
+        password = newPassword;
+    }
+
+    virtual ~User() {}
+};
+
+// Derived class - Admin
+class Admin : public User {
+public:
+    Admin(const string& username, const string& password) : User(username, password) {}
+
+    void displayRole() const {
+        cout << "Role: Admin" << endl;
+    }
+};
+
+// Derived class - Employee
+class Employee : public User {
+public:
+    Employee(const string& username, const string& password) : User(username, password) {}
+
+    void displayRole() const {
+        cout << "Role: Employee" << endl;
+    }
+};
+
+void adminMenu(vector<User*>& accounts);
+void employeeMenu(vector<User*>& accounts);
+
+bool login(vector<User*>& accounts);
+
+void createAccount(vector<User*>& accounts);
+
+void changePasswordAndUsername(vector<User*>& accounts);
+
+class Product {
+public:
+    string id;
+    string name;
+    int quantity;
+    double price;
+    string type;
+
+    Product(string id, const string& name, int quantity, double price, const string& type)
+            : id(id), name(name), quantity(quantity), price(price), type(type) {}
+
+    string getId() const { return id; }
+
+    // Function to retrieve product information
+    std::string getProductInfo() const {
+        return id + "," + name + "," + type;
+    }
+
+};
+
+//Function to validate and get an integer input from the user
+int getIntInput() {
+    int input;
+    while (true) {
+        if (cin >> input) {
+            // Check if there are any trailing characters
+            if (cin.peek() == '\n') {
+                cin.ignore();  // Consume the newline character
+                break;  // Valid input, break out of the loop
+            }
+        }
+
+        // Clear the input stream and ignore any remaining characters
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        cout << "Invalid input. Please enter a number: ";
+    }
+    return input;
+}
+
+// Function to validate and get a double input from the user
+double getDoubleInput() {
+    double input;
+    while (true) {
+        if (cin >> input) {
+            // Check if there are any trailing characters
+            if (cin.peek() == '\n') {
+                break;  // Valid input, break out of the loop
+            }
+        }
+
+        // Clear the input stream and ignore any remaining characters
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        cout << "Invalid input. Please enter a number: ";
+    }
+    return input;
+}
+
+void printLine(char lineChar = '-', int lineLength = 30) {
+    std::cout << std::string(lineLength, lineChar) << std::endl;
+}
+
+void printHeader(const std::string& headerText) {
+    printLine();
+    std::cout <<"     "<<headerText << std::endl;
+    printLine();
+}
+
+// Function to validate and get a string input from the user
+string getStringInput() {
+    string input;
+    while (true) {
+        if (getline(cin, input)) {
+            break;  // Valid input, break out of the loop
+        }
+
+        // Clear the input stream
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        cout << "Invalid input. Please enter a string: ";
+    }
+    return input;
+}
+
+void clearscreen(int seconds) {
+    this_thread::sleep_for(chrono::seconds(seconds));
+#ifdef _WIN32
+    system("cls"); // for Windows
+#else
+    system("clear"); // for Linux and macOS
+#endif
+
+}
+
+void printReceipt() {
+    clearscreen(5);
+
+    std::ifstream receiptsFile("receipt.txt");
+
+    if (!receiptsFile) {
+        std::cout << "Sales file not found." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(receiptsFile, line)) {
+        std::cout << line << std::endl;
+    }
+
+    receiptsFile.close();
+}
+
+// Function to create an account
+void createAccount(vector<User*>& accounts) {
+    clearscreen(1);
+    string username, password;
+
+    while (true) {
+        cout << "Enter username: ";
+        username = getStringInput();
+        //cin >> username;
+
+
+        // Check if the username already exists
+        bool usernameExists = false;
+        for (const auto& account : accounts) {
+            if (account->getUsername() == username) {
+                cout << "Username already exists. Please choose another username." << endl;
+                usernameExists = true;
+                break;
+            }
+        }
+
+        if (!usernameExists) {
+            break;
+        }
+    }
+
+    cout << "Enter password: ";
+    password = getStringInput();
+    //cin >> password;
+
+    while (true) {
+        cout << "Enter role (admin/employee): ";
+        role = getStringInput();
+        //cin >> role;
+
+        if (role == "admin" || role == "employee") {
+            break;
+        } else {
+            cout << "Invalid role. Please enter 'admin' or 'employee'." << endl;
+        }
+    }
+
+    if (role == "admin") {
+        Admin* admin = new Admin(username, password);
+        accounts.push_back(admin);
+        cout << "Admin account created successfully." << endl;
+        cout << "Username: " << admin->getUsername() << ", Password: " << admin->getPassword() << endl;
+        admin->displayRole();
+    } else if (role == "employee") {
+        Employee* employee = new Employee(username, password);
+        accounts.push_back(employee);
+        cout << "Employee account created successfully." << endl;
+        cout << "Username: " << employee->getUsername() << ", Password: " << employee->getPassword() << endl;
+        employee->displayRole();
+    }
+
+    // Write account information to a file
+    ofstream outputFile("accounts.txt", ios::app);
+    if (outputFile.is_open()) {
+        outputFile << username << "," << password << "," << role << endl;
+        outputFile.close();
+    } else {
+        cout << "Failed to write account information to file." << endl;
+    }
+}
+
+// Function to read account information from a file
+void readAccountsFromFile(vector<User*>& accounts) {
+    ifstream inputFile("accounts.txt");
+    if (inputFile.is_open()) {
+        string line;
+        while (getline(inputFile, line)) {
+            string username, password, role;
+            size_t pos = line.find(',');
+            if (pos != string::npos) {
+                username = line.substr(0, pos);
+                line.erase(0, pos + 1);
+
+                pos = line.find(',');
+                if (pos != string::npos) {
+                    password = line.substr(0, pos);
+                    role = line.substr(pos + 1);
+
+                    if (role == "admin") {
+                        Admin* admin = new Admin(username, password);
+                        accounts.push_back(admin);
+                    } else if (role == "employee") {
+                        Employee* employee = new Employee(username, password);
+                        accounts.push_back(employee);
+                    }
+                }
+            }
+        }
+        inputFile.close();
+    } else {
+        cout << "Failed to read account information from file." << endl;
+    }
+}
+
+// Function to change password and username
+void changePasswordAndUsername(vector<User*>& accounts) {
+    clearscreen(1);
+    string password;
+    string username;
+
+    cout << "Enter username: ";
+    username = getStringInput();
+    //cin >> username;
+
+    for (auto& account : accounts) {
+        if (account->getUsername() == username) {
+            cout << "Enter current password: ";
+            password = getStringInput();
+            //cin >> password;
+
+            // Authenticate user by comparing the entered password with the stored password
+            if (password == account->getPassword()) {
+                string newPassword;
+
+                account->setUsername(username);
+
+                cout << "Enter new password: ";
+                newPassword = getStringInput();
+                //cin >> newPassword;
+                account->setPassword(newPassword);
+
+                cout << "Password and username updated successfully." << endl;
+
+                // Update account information in the file
+                ofstream outputFile("accounts.txt");
+                if (outputFile.is_open()) {
+                    for (const auto& acc : accounts) {
+                        outputFile << acc->getUsername() << "," << acc->getPassword() << ",";
+                        if (dynamic_cast<Admin*>(acc)) {
+                            outputFile << "admin";
+                        } else if (dynamic_cast<Employee*>(acc)) {
+                            outputFile << "employee";
+                        }
+                        outputFile << endl;
+                    }
+                    outputFile.close();
+                } else {
+                    cout << "Failed to update account information in file." << endl;
+                }
+
+                return;
+            } else {
+                cout << "Incorrect password. Authentication failed." << endl;
+                return;
+            }
+        }
+    }
+
+    cout << "Account with username '" << username << "' not found." << endl;
+}
+
+
+bool login(vector<User*>& accounts) {
+    string username;
+    string password;
+    const int MAX_ATTEMPTS = 3;
+    const int LOCKOUT_DURATION = 10;
+
+    static int failedAttempts = 0;
+    static bool lockedOut = false;
+
+    while (failedAttempts < MAX_ATTEMPTS) {
+        clearscreen(1);
+        cout << "Enter your username: ";
+        username = getStringInput();
+        // cin >> username;
+        cout << "Enter your password: ";
+        password = getStringInput();
+        // cin >> password;
+
+        if (lockedOut) {
+            cout << "Account is currently locked out. Please try again later." << endl;
+            return false;
+        }
+
+        ifstream inputFile("accounts.txt");
+        if (inputFile.is_open()) {
+            string line;
+            while (getline(inputFile, line)) {
+                string storedUsername, storedPassword, role;
+                size_t pos = line.find(',');
+                if (pos != string::npos) {
+                    storedUsername = line.substr(0, pos);
+                    line.erase(0, pos + 1);
+
+                    pos = line.find(',');
+                    if (pos != string::npos) {
+                        storedPassword = line.substr(0, pos);
+                        role = line.substr(pos + 1);
+
+                        if (username == storedUsername && password == storedPassword) {
+                            inputFile.close();
+                            failedAttempts = 0;
+                            // Store the logged-in user's username in the global variable
+                            loggedInUser = username;
+
+                            if (role == "admin") {
+                                cout << "Login successful. Logged in as Admin:" <<loggedInUser<< endl;
+                                adminMenu(accounts);
+                            } else if (role == "employee") {
+                                cout << "Login successful. Logged in as Employee:" <<loggedInUser<< endl;
+                                employeeMenu(accounts);
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+            inputFile.close();
+        }
+
+        failedAttempts++;
+        cout << "Login failed. Attempts remaining: " << MAX_ATTEMPTS - failedAttempts << endl;
+
+        if (failedAttempts >= MAX_ATTEMPTS) {
+            cout << "Too many unsuccessful login attempts. Account locked. Please try again after " << LOCKOUT_DURATION << " seconds." << endl;
+            lockedOut = true;
+            this_thread::sleep_for(chrono::seconds(LOCKOUT_DURATION));
+            lockedOut = false;
+            failedAttempts = 0;
+        }
+    }
+
+    return false;
+}
+
+// Function to analyze sales data
+void analyzeSales() {
+    clearscreen(1);
+    std::ifstream salesFile("sales.txt");
+
+    if (!salesFile) {
+        cout << "Sales file not found." << endl;
+        return;
+    }
+
+    string line;
+    int totalSales = 0;
+    double totalRevenue = 0.0;
+    int totalQuantity = 0;
+    double highestPrice = 0.0;
+    string highestPriceProduct;
+    double totalAmountSold = 0.0;
+    std::map<string, int> productQuantityMap;
+
+    while (getline(salesFile, line)) {
+        std::istringstream iss(line);
+        string productName;
+        int quantity;
+        double subtotal;
+
+        if (iss >> productName >> quantity >> subtotal) {
+            totalSales++;
+            totalRevenue += subtotal;
+            totalQuantity += quantity;
+            totalAmountSold += subtotal;
+
+            if (subtotal > highestPrice) {
+                highestPrice = subtotal;
+                highestPriceProduct = productName;
+            }
+
+            // Update product quantity sold
+            if (productQuantityMap.find(productName) == productQuantityMap.end()) {
+                productQuantityMap[productName] = quantity;
+            } else {
+                productQuantityMap[productName] += quantity;
+            }
+        }
+    }
+
+    salesFile.close();
+
+    cout << "Sales Analysis" << endl;
+    cout << "-----------------------------" << endl;
+    cout << "Total Sales: " << totalSales << endl;
+    cout << "Total Revenue: $" << std::fixed << std::setprecision(2) << totalRevenue << endl;
+    cout << "Total Quantity Sold: " << totalQuantity << endl;
+    cout << "Product with Highest Price: " << highestPriceProduct << " ($" << std::fixed << std::setprecision(2) << highestPrice << ")" << endl;
+    cout << "Total Amount Sold So Far: $" << std::fixed << std::setprecision(2) << totalAmountSold << endl;
+
+    cout << endl << "Top 5 Most Sold Products:" << endl;
+    cout << "-----------------------------" << endl;
+
+    // Sort products based on quantity sold
+    std::vector<std::pair<string, int>> productQuantityVec(productQuantityMap.begin(), productQuantityMap.end());
+    std::sort(productQuantityVec.begin(), productQuantityVec.end(), [](const auto& lhs, const auto& rhs) {
+        return lhs.second > rhs.second;
+    });
+
+    // Display top 5 most sold products
+    int count = 0;
+    for (const auto& product : productQuantityVec) {
+        cout << product.first << ": " << product.second << " units" << endl;
+        count++;
+        if (count == 5) {
+            break;
+        }
+    }
+}
+
+std::string generateUniqueID() {
+    static int counter = 1256;  // Static variable to track the counter value and start from 125
+    counter++;                // Increment the counter
+
+    std::string uniqueID = "#" + std::to_string(counter);
+    return uniqueID;
+}
+
+
+// Function to sell a product
+void sellProduct(vector<Product>& products) {
+    clearscreen(1);
+    double total;
+    double subtotal;
+    double discount;
+    double cash;
+    double balance;
+    int quantityToSell;
+
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    string id;
+    cout << "Enter product ID: ";
+    id = getStringInput();
+    //cin >> id;
+
+    auto it = find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.id == id;
+    });
+
+    if (it != products.end()) {
+
+        cout << "Enter quantity to sell: ";
+        quantityToSell = getIntInput();
+        //cin >> quantityToSell;
+
+        if (quantityToSell > it->quantity) {
+            cout << "Insufficient quantity available." << endl;
+            return;
+        }
+        it->quantity -=quantityToSell;
+
+        if (quantityToSell>=10) {
+            discount=0.1;
+        }
+
+        total = it->price * quantityToSell;
+        subtotal = total - total * discount;
+
+        while (true) {
+            cout << "  Subtotal: $"<<subtotal<< endl;
+            cout << "Enter Cash Amount: $";
+            if (!(cin >> cash)) {
+                cout << "Invalid input. Please enter a valid cash amount." << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
+
+            if (cash < subtotal) {
+                cout << "Insufficient cash amount. Please enter a valid amount." << endl;
+            } else {
+                break;
+            }
+        }
+
+        balance = cash - subtotal;
+
+        // Store sales information in a file
+        ofstream receiptsFile("receipt.txt", ios::app);
+        if (receiptsFile) {
+
+
+            // Get the current time as a seed for the random number generator
+            auto currentTime = std::chrono::system_clock::now();
+            std::time_t timeNow = std::chrono::system_clock::to_time_t(currentTime);
+
+            // Format the time as HH:MM:SS
+            std::stringstream timeStream;
+            timeStream << std::put_time(std::localtime(&timeNow), "%H:%M:%S");
+
+            // Format the date as DD/MM/YYYY
+            std::stringstream dateStream;
+            dateStream << std::put_time(std::localtime(&timeNow), "%d/%m/%Y");
+
+
+            // Combine the time, date, and unique ID
+            std::string dateTime= timeStream.str() + " " + dateStream.str();
+
+
+            string customerName;
+            cout << "Enter customer name: ";
+            cin.ignore();
+            getline(cin, customerName);
+
+            string receiptID = generateUniqueID();
+
+            receiptsFile << "ReceiptID"<< receiptID << endl;
+            receiptsFile << shopAddress << endl;
+            receiptsFile << dateTime<< endl;
+            receiptsFile << "Served By: " << loggedInUser << endl;
+            receiptsFile << "Customer Name: " << customerName << endl;
+            receiptsFile << "Product Name: " << it->name << endl;
+            receiptsFile << "Quantity: " << quantityToSell << endl;
+            receiptsFile << "Total Price: " << total << endl;
+            receiptsFile << "Discount: "<< discount << endl;
+            receiptsFile << "Subtotal: " << subtotal << endl;
+            receiptsFile << "Cash Amount : "<< cash << endl;
+            receiptsFile << "Balance: "<< balance << endl;
+            receiptsFile << endl;
+
+            // Store sales information in a file
+            ofstream salesFile("sales.txt", ios::app);
+            if (salesFile) {
+                salesFile << it->name <<" "<< quantityToSell<<" " << subtotal << endl;
+            } else {
+                cout << "Failed to write sales information to file." << endl;
+            }
+            cout << "Product sold successfully.Receipt generated successfully" << endl;
+            printReceipt();
+        } else {
+            cout << "Error opening receipts file." << endl;
+        }
+    } else {
+        cout << "Product not found." << endl;
+    }
+}
+
+// Function to add a product
+void addProduct(vector<Product>& products) {
+    clearscreen(1);
+    string id;
+    cout << "Enter product ID: ";
+    id = getStringInput();
+    //cin >> id;
+
+    auto it = find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.id == id;
+    });
+
+    if (it != products.end()) {
+        cout << "Product with the same ID already exists." << endl;
+        return;
+    }
+
+    string name;
+    cout << "Enter product name: ";
+    name = getStringInput();
+
+    int quantity;
+    cout << "Enter quantity: ";
+    quantity = getIntInput();
+    //cin >> quantity;
+
+    double price;
+    cout << "Enter price: ";
+    price = getDoubleInput();
+    //cin >> price;
+
+    string type;
+    cout << "Enter product type: ";
+    cin.ignore();
+    getline(cin, type);
+
+    Product newProduct(id, name, quantity, price, type);
+    products.push_back(newProduct);
+
+    ofstream file("products.txt");
+    if (file.is_open()) {
+        for (const auto& product : products) {
+            file << "   " << product.id << "   " << product.name << "   " << product.quantity << "   "
+                 << product.price << "   " << product.type <<  endl;
+        }
+        file.close();
+        cout << "Success." << endl;
+    } else {
+        cout << "Failed to write product information to file." << endl;
+    }
+
+    cout << "Product added successfully." << endl;
+}
+
+// Function to read products from a file
+vector<Product> readProductsFromFile(const string& filename) {
+    vector<Product> products;
+    ifstream file(filename);
+    if (file) {
+        int quantity;
+        double price;
+        string id, name, type;
+        while (file >> id >> name >> quantity >> price >> type ) {
+            Product product(id, name, quantity, price, type);
+            products.push_back(product);
+        }
+        file.close();
+    } else {
+        cout << "Error opening file: " << filename << endl;
+    }
+    return products;
+}
+
+// Function to save products to a file
+void saveProductsToFile(const string& filename, const vector<Product>& products) {
+    ofstream file(filename);
+    if (file) {
+        for (const auto &product : products) {
+            file << "   " << product.id << "   " << product.name << "   " << product.quantity << "   " << product.price
+                 << "   " << product.type << endl;
+        }
+        file.close();
+    } else {
+        cout << "Error opening file: " << filename << endl;
+    }
+}
+
+// Function to update the quantity of a product
+void updateProductQuantity(vector<Product>& products, const string& id, int newQuantity) {
+    clearscreen(1);
+
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    auto it = find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.id == id;
+    });
+
+    if (it != products.end()) {
+        it->quantity = newQuantity;
+        cout << "Product quantity updated successfully." << endl;
+    } else {
+        cout << "Product not found." << endl;
+    }
+}
+
+// Function to update the price of a product
+void updateProductPrice(vector<Product>& products, const string& id, double newPrice) {
+    clearscreen(1);
+
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    auto it = find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.id == id;
+    });
+
+    if (it != products.end()) {
+        it->price = newPrice;
+        cout << "Product price updated successfully." << endl;
+    } else {
+        cout << "Product not found." << endl;
+    }
+}
+
+// Function to search for a product by ID
+void searchProductByID(const vector<Product>& products, const string& id) {
+    clearscreen(1);
+
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    auto it = find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.id == id;
+    });
+
+    if (it != products.end()) {
+        cout << "Product found: " << endl;
+        cout << "ID: " << it->id << endl;
+        cout << "Name: " << it->name << endl;
+        cout << "Quantity: " << it->quantity << endl;
+        cout << "Price: " << it->price << endl;
+        cout << "Type: " << it->type << endl;
+        string choice;
+        cout << "Product not found. Do you want to sell it? (y/n): ";
+        choice = getStringInput();
+        //cin >> choice;
+
+        if (choice == "y" || choice == "Y") {
+            sellProduct(const_cast<vector<Product>&>(products)); // Pass the 'products' vector as an argument
+        }
+    } else {
+        cout << "Product not found." << endl;
+        if (role == "admin") {
+            string choice;
+            cout << "Product not found. Do you want to add it? (y/n): ";
+            choice = getStringInput();
+            //cin >> choice;
+
+            if (choice == "y" || choice == "Y") {
+                addProduct(const_cast<vector<Product>&>(products)); // Pass the 'products' vector as an argument
+            }
+        }
+    }
+}
+
+// Function to search for a product by name
+void searchProductByName(const vector<Product>& products, const string& name) {
+    clearscreen(1);
+
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    auto it = find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.name == name;
+    });
+
+    if (it != products.end()) {
+        cout << "Product found: " << endl;
+        cout << "ID: " << it->id << endl;
+        cout << "Name: " << it->name << endl;
+        cout << "Quantity: " << it->quantity << endl;
+        cout << "Price: " << it->price << endl;
+        cout << "Type: " << it->type << endl;
+        string choice;
+        cout << "Product not found. Do you want to sell it? (y/n): ";
+        choice = getStringInput();
+        //cin >> choice;
+
+        if (choice == "y" || choice == "Y") {
+            sellProduct(const_cast<vector<Product>&>(products)); // Pass the 'products' vector as an argument
+        }
+    } else {
+        cout << "Product not found." << endl;
+        if (role == "admin") {
+            string choice;
+            cout << "Product not found. Do you want to add it? (y/n): ";
+            choice = getStringInput();
+            //cin >> choice;
+
+            if (choice == "y" || choice == "Y") {
+                addProduct(const_cast<vector<Product>&>(products)); // Pass the 'products' vector as an argument
+            }
+        }
+    }
+}
+
+
+void displayProducts(const vector<Product>& products) {
+    clearscreen(1);
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    cout << "ID\tName\tQuantity\tPrice\tType\tCategory" << endl;
+    for (const auto& product : products) {
+        cout << product.id << "\t" << product.name << "\t" << product.quantity << "\t" << product.price  << "\t" << product.type << endl;
+    }
+}
+
+
+void removeProduct(std::vector<Product>& products, const string& id) {
+    clearscreen(1);
+
+    if (products.empty()) {
+        cout << "No products available." << endl;
+        return;
+    }
+
+    auto it = std::find_if(products.begin(), products.end(), [&](const Product& p) {
+        return p.id == id;
+    });
+
+    if (it != products.end()) {
+        products.erase(it);
+        std::cout << "Product with ID " << id << " has been removed from the inventory." << std::endl;
+        std::ofstream outputFile("products.txt");
+        if (outputFile.is_open()) {
+            for (const auto& product : products) {
+                outputFile << product.getProductInfo() << std::endl;
+            }
+            outputFile.close();
+        } else {
+            std::cout << "Failed to open the product file for writing." << std::endl;
+        }
+    } else {
+        std::cout << "Product with ID " << id << " not found in the inventory." << std::endl;
+    }
+}
+// Function to display the menu
+void displayMenu() {
+    vector<Product> products = readProductsFromFile("products.txt");
+    vector<User*> accounts;
+    // Read existing account information from file
+    readAccountsFromFile(accounts);
+    clearscreen(1);
+
+    while (true) {
+        printHeader("Welcome to Arries Ltd ");
+        cout << "1. Login" << endl;
+        cout << "2. Exit" << endl;
+        printLine();
+
+        int choice;
+        cout << "Enter your choice: ";
+        choice = getIntInput();
+        //cin>>choice;
+        switch(choice){
+            case 1:
+                login(accounts);
+            case 2:
+                cout << "Exiting..." << endl;
+                saveProductsToFile("products.txt", products);
+                exit(0);
+        }
+        clearscreen(1);
+    }
+}
+
+void employeeMenu(vector<User*>& accounts) {
+
+    vector<Product> products = readProductsFromFile("products.txt");
+
+    while (true) {
+        clearscreen(1);
+        // Code for user menu
+        printHeader("   Menu");
+        displayProducts(products);
+        printLine();
+        cout << "1. Sell Product" << endl;
+        cout << "2. Search Product" << endl;
+        cout << "3. Change Password" << endl;
+        cout << "4. Logout" << endl;
+        printLine();
+
+        int choice1;
+        cout << "Enter your choice: ";
+        choice1 = getIntInput();
+        //cin >> choice;
+
+        switch (choice1) {
+            case 1:
+                sellProduct(products);
+                break;
+            case 2: {
+                while (true) {
+                    clearscreen(1);
+                    cout << "1.  Search by ID" << endl;
+                    cout << "2.  Search by Name" << endl;
+                    cout << "2.  Exit " << endl;
+
+                    int choice;
+                    cout << "Enter your choice: ";
+                    choice = getIntInput();
+                    //cin >> choice;
+
+                    switch (choice) {
+                        case 1: {
+                            string id;
+                            cout << "Enter product ID: ";
+                            id = getStringInput();
+                            //cin >> id;
+                            searchProductByID(products, id);
+                            break;
+                        }
+                        case 2: {
+                            string name;
+                            cout << "Enter product name: ";
+                            name = getStringInput();
+                            searchProductByName(products, name);
+                            break;
+                        }
+                        case 3:
+                            displayMenu();
+                    }
+                }
+                break;
+            }
+            case 3:
+                changePasswordAndUsername(accounts);
+                break;
+            case 4:
+                displayMenu();
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+    }
+}
+
+void adminMenu(vector<User*>& accounts) {
+
+    vector<Product> products = readProductsFromFile("products.txt");
+
+    while (true) {
+        clearscreen(1);
+        // Code for admin menu
+        printHeader("   Menu");
+        cout << "1.  Add Product" << endl;
+        cout << "2.  Remove Product" << endl;
+        cout << "3.  View Products" << endl;
+        cout << "4.  Search Product" << endl;
+        cout << "5.  Sell Product" << endl;
+        cout << "6.  View Sales" << endl;
+        cout << "7.  Analyze sales"<<endl;
+        cout << "8.  Update Product Prices" << endl;
+        cout << "9.  UpdateProductQuantity" << endl;
+        cout << "10. Change password" << endl;
+        cout << "11. Create user account" << endl;
+        cout << "12. Logout" << endl;
+        printLine();
+
+        int choice1;
+        cout << "Enter your choice: ";
+        choice1 = getIntInput();
+        //cin >> choice;
+
+        switch (choice1) {
+            case 1:
+                addProduct(products);
+                break;
+            case 2:{
+                string id;
+                cout << "Enter product ID: ";
+                id = getStringInput();
+                //cin>>id;
+                removeProduct(products, id);
+                break;
+            }
+            case 3:
+                displayProducts(products);
+                break;
+            case 4: {
+                while (true) {
+                    clearscreen(1);
+                    cout << "1.  Search by ID" << endl;
+                    cout << "2.  Search by Name" << endl;
+                    cout << "3.  Exit " << endl;
+
+                    cout << "Enter your choice: ";
+                    int choice;
+                    choice = getIntInput();
+                    //cin >> choice;
+
+                    switch (choice) {
+                        case 1: {
+                            string id;
+                            cout << "Enter product ID: ";
+                            id = getStringInput();
+                            searchProductByID(products, id);
+                            break;
+                        }
+                        case 2: {
+                            string name;
+                            cout << "Enter product name: ";
+                            name = getStringInput();
+                            searchProductByName(products, name);
+                            break;
+                        }
+
+                        case 3:
+                            displayMenu();
+                    }
+                }
+                break;
+            }
+            case 5:
+                sellProduct(products);
+                break;
+            case 6:
+                printReceipt();
+                break;
+            case 7:
+                analyzeSales();
+                break;
+            case 8:{
+                string id;
+                double newPrice;
+                cout << "Enter product ID: ";
+                id = getStringInput();
+                //cin >> id;
+                cout << "Enter new price: $";
+                newPrice = getDoubleInput();
+                //cin >> newPrice;
+                updateProductPrice(products, id, newPrice);
+                break;
+            }
+            case 9:{
+                string id;
+                int newQuantity;
+                cout << "Enter product ID: ";
+                id = getStringInput();
+                cout << "Enter new quantity: ";
+                newQuantity = getIntInput();
+                updateProductQuantity(products, id, newQuantity);
+                break;
+            }
+            case 10:
+                changePasswordAndUsername(accounts);
+                break;
+            case 11:
+                createAccount(accounts);
+                break;
+            case 12:
+                saveProductsToFile("products.txt", products);
+                displayMenu();
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+    }
+}
+
+
+int main() {
+
+    vector<User*> accounts;
+    // Read existing account information from file
+    readAccountsFromFile(accounts);
+
+    vector<Product> products = readProductsFromFile("products.txt");
+
+    displayMenu();
+    return 0;
+}
