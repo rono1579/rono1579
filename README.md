@@ -33,7 +33,7 @@ Backend Development | Database Design | Cloud Deployment | AI Data QA | Agile Co
 
 - 📧 **Email:** rono1579@gmail.com  
 - 💼 **GitHub:** [github.com/rono1579](https://github.com/rono1579)  
-- 🔗 **LinkedIn:** [linkedin.com/in/rono1579](https://linkedin.com/in/rono1579) *(add your actual link)*
+- 🔗 **LinkedIn:** [https://www.linkedin.com/in/kathuli-yusuf-b97160326](https://www.linkedin.com/in/kathuli-yusuf-b97160326)
 
 ---
 
