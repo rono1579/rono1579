@@ -1,7 +1,4 @@
 # Hi, I'm Kathuli 🔹  
-**Junior Backend Software Developer | APIs, Databases & Cloud Systems | JavaScript & Java | AI Quality Assurance**
-
----
 
 ## 👨‍💻 Personal Info
 
