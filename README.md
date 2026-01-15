@@ -3,13 +3,13 @@
 
 ---
 
-## 👨‍💻 About Me
+## 👨‍💻 Personal Info
 
-Junior Backend Developer focused on building secure and scalable systems. Experienced with **JavaScript** and **Java** backends, **REST APIs**, databases (**PostgreSQL, MongoDB**), and cloud platforms like **Azure**. Also familiar with **Docker** and **Git**.  
-
-My background in **AI Quality Assurance & Data Annotation** has strengthened my attention to detail and commitment to data integrity. I enjoy solving backend challenges and collaborating in Agile teams.  
-
-Currently open to **Junior Backend Developer** or **Software Engineering** roles where I can contribute and grow.
+- **Name:** Rono Yusuf  
+- **Role:** Backend Developer  
+- **Location:** Nairobi, Kenya 🇰🇪
+- **Email:** rono1579@gmail.com  
+- **GitHub:** [rono1579](https://github.com/rono1579)  
 
 ---
 
