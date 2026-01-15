@@ -1,14 +1,14 @@
-# Hi, I'm Ron 🔹  
+# Hi, I'm Kathuli 🔹  
 **Junior Backend Software Developer | APIs, Databases & Cloud Systems | JavaScript & Java | AI Quality Assurance**
 
 ---
 
 ## 👨‍💻 Personal Info
 
-- **Name:** Rono Yusuf  
+- **Name:** Kathuli Yusuf Kathuvya  
 - **Role:** Backend Developer  
 - **Location:** Nairobi, Kenya 🇰🇪
-- **Email:** rono1579@gmail.com  
+- **Email:** kathuliyusuf2@gmail.com  
 - **GitHub:** [rono1579](https://github.com/rono1579)  
 
 ---
@@ -31,7 +31,7 @@ Backend Development | Database Design | Cloud Deployment | AI Data QA | Agile Co
 
 ## 📬 Contact
 
-- 📧 **Email:** rono1579@gmail.com  
+- 📧 **Email:** Kathuliyusuf2@gmail.com  
 - 💼 **GitHub:** [github.com/rono1579](https://github.com/rono1579)  
 - 🔗 **LinkedIn:** [https://www.linkedin.com/in/kathuli-yusuf-b97160326](https://www.linkedin.com/in/kathuli-yusuf-b97160326)
 
